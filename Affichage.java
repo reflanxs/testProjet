@@ -1,10 +1,13 @@
 import java.util.Scanner;
 
 
+
+
 public class Affichage {
     private Scanner scj1;
 	private Scanner scj2;
 	private Scanner sc;
+	
 
 
     public void demanderNom(Joueur joueur1, Joueur joueur2) {
@@ -21,18 +24,18 @@ public class Affichage {
     	
     }
 
-
+ 
     public Couleur demanderCouleur() {
-    	System.out.println("Veuillez saisir la couleur des piï¿½ces du joueur 1 (Attention il faut confirmer ï¿½ 3 reprises:");
+    	System.out.println("Veuillez saisir la couleur des pièces du joueur 1 (Attention il faut confirmer à 3 reprises:");
     	sc = new Scanner(System.in);
     	String str = sc.nextLine();	
     	
     	if(str.equals("noir") || str.equals("blanc")){
     		if (str.equals("noir")){
-    			System.out.println("Le joueur 1 possï¿½de les piï¿½ces noires et le joueur 2 les piï¿½ces blanches");
+    			System.out.println("Le joueur 1 possède les pièces noires et le joueur 2 les pièces blanches");
     			return Couleur.noir;}
     		else{
-    			System.out.println("Le joueur 1 possï¿½de les piï¿½ces blanches et le joueur 2 les piï¿½ces noires");
+    			System.out.println("Le joueur 1 possède les pièces blanches et le joueur 2 les pièces noires");
     			return Couleur.blanc;}
     	}
     	
@@ -41,8 +44,8 @@ public class Affichage {
     }
 
 
-    public String jeu(Echequier[][] unEchequier, Joueur joueurActuel) {
-
+    public String jeu(Echequier unEchequier, Joueur joueurActuel) {
+    	int indexTab = 1;
     	String s="\n";
     	for (int a=0; a<10; a++){
     		s=s+"********";
@@ -58,10 +61,39 @@ public class Affichage {
     		s=s+"*\n";
     		
     		for (int d=0; d<10; d++){
-    			s=s+"*  "+unEchequier[b][d]+"  ";
+    			
+    			if (b==0 && d==0)
+    				s=s+"*       ";
+    			else if (b==0 && d==9)
+    				s=s+"*       ";
+    			else if (b==9 && d==0)
+    				s=s+"*       ";
+    			else if (b==9 && d==9)
+    				s=s+"*       ";
+    			
+    			else if(b==0){
+    				s=s+"*   "+afficherColonne(d)+"   ";
+    			}
+    			else if(b==9){
+    				s=s+"*   "+afficherColonne(d)+"   ";    			
+    			}
+    		
+    			else if (d==0){
+    				s=s+"*   "+b+"   ";  
+    			}
+    			
+    			else if (d==9){
+    				s=s+"*   "+b+"   ";  
+    			}
+    			
+    			else{
+    				s=s+"*  "+unEchequier.tabCase[unEchequier.recupIndex(b-1, d-1)/*(8*(b-1))+(d-1)*/].piece.toString()+"  ";
+    				
+    			}
+    			
     		}
     		s=s+"*\n";
-    		
+
     		for (int e=0; e<10; e++){
     			s=s+"*       ";
     		}
@@ -75,19 +107,37 @@ public class Affichage {
 		return s;
     }
     
-    public Affichage (){}
+    private String afficherColonne(int Colonne) {
+    	if(Colonne==1)
+    		return "A";
+    	if(Colonne==2)
+    		return "B";
+    	if(Colonne==3)
+    		return "C";
+    	if(Colonne==4)
+    		return "D";
+    	if(Colonne==5)
+    		return "E";
+    	if(Colonne==6)
+    		return "F";
+    	if(Colonne==7)
+    		return "G";
+    	if(Colonne==8)
+    		return "H";    	
+    	return null;
+		
+	}
+
+
+	public Affichage (){}
     
-    public void check(Echequier tab[][] ){
-    	for(int i=0;i<10;i++){
-    		for(int j=0;j<10;j++){
-    			
-    			if(tab[i][j].c==null){
-    				System.out.println("l'emplacment "+i+"|"+j+" est une bordure");
-    			}
-    			else{
-    				System.out.println("Emplacment "+i+"|"+j+": "+ tab[i][j].c.piece.nom+" de couleur "+tab[i][j].c.piece.getCouleur()+ " de paire "+tab[i][j].c.piece.paire+ " a la case de colonne "+tab[i][j].c.getColonne()+" et de rangï¿½e "+tab[i][j].c.getRangee() );
-    			}
-    		}
+	
+	
+	
+	
+    public void check(Echequier tab ){
+    	for(int i=0;i<64;i++){
+    		System.out.println("Case numero "+i+"/ rangée: "+tab.tabCase[i].getRangee()+"/colonne: "+tab.tabCase[i].getColonne()+" / "+ tab.tabCase[i].piece.toString());
     	}
     }
     
