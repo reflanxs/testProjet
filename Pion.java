@@ -1,51 +1,36 @@
+import java.io.Serializable;
 
-public class Pion extends Piece {
+public class Pion extends Piece implements Serializable {
+
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 
 	public Pion(int p, Couleur c, String n) {
 		super(p, c, n);
 	}
 
-	
-	
+
 	public String toString(){
 		if (this.couleur==Couleur.blanc)
 			return "P"+this.paire+"b";
+
 		else
 			return "P"+this.paire+"n";
 	}
 
-
-
+	Echequier move(Echequier unEchequier, Case caseDepart, Case caseArriver) {
 	
 
-
-
+		Piece pieceMove=unEchequier.tabCase[unEchequier.recupIndex(8-caseDepart.getRangee(), caseDepart.getColonne()-1)].piece;
+		
+		unEchequier.tabCase[unEchequier.recupIndex(8-caseDepart.getRangee(), caseDepart.getColonne()-1)].piece= new Vide();
+		
+		unEchequier.tabCase[unEchequier.recupIndex(8-caseArriver.getRangee(), caseArriver.getColonne()-1)].piece=pieceMove;
 	
-
-
-	Echequier move(Echequier unEchequier, int departC, int departR, int arriveC , int arriveR ) {
-		/*Piece pieceMove=null;
-		for(int i=0;i<10;i++){
-			for(int j=0;j<10;j++){
-				if(unEchequier[i][j].c!=null){
-					if(unEchequier[i][j].c.getRangee()==departR && unEchequier[i][j].c.getColonne()==departC){
-						pieceMove=unEchequier[i][j].c.piece;
-						unEchequier[i][j].c.piece= new Vide(1,Couleur.invisible,"vide");
-					}
-				}
-			}
-		}
-		//System.out.println("pieceMove est un "+pieceMove.nom+" de paire "+pieceMove.paire+" et de couleur "+pieceMove.getCouleur());
-		for(int i=0;i<10;i++){
-			for(int j=0;j<10;j++){
-				if(unEchequier[i][j].c!=null){
-					if(unEchequier[i][j].c.getRangee()==arriveR && unEchequier[i][j].c.getColonne()==arriveC){
-						unEchequier[i][j].c.piece= pieceMove;
-					}
-				}
-			}
-		}
-		*/
 		return unEchequier;
 	}
 }

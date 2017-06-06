@@ -1,6 +1,11 @@
+import java.io.Serializable;
 
-abstract public class Piece {
-    protected Couleur couleur;
+abstract public class Piece implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected Couleur couleur;
     protected int paire;
     protected String nom;
    
@@ -15,7 +20,7 @@ abstract public class Piece {
         this.couleur = value;
     }
     
-    abstract Echequier move(Echequier unEchequier, int departC, int departR, int arriveC , int arriveR );
+    abstract Echequier move(Echequier unEchequier, Case caseDepart, Case caseArriver );
     
     
     public Piece(int p,Couleur c,String n){
@@ -23,4 +28,6 @@ abstract public class Piece {
     	this.paire=p;
     	this.nom=n;
     }
+    
+  
 }
