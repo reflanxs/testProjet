@@ -1,18 +1,23 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-public class Joueur {
-    protected Couleur couleur;
+public class Joueur implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	protected Couleur couleur;
     
     private String nom;
 
 
-    Couleur getCouleur() {
+   public Couleur getCouleur() {
         // Automatically generated method. Please delete this comment before entering specific code.
         return this.couleur;
     }
 
-    void setCouleur(Couleur value) {
+    public void setCouleur(Couleur value) {
         // Automatically generated method. Please delete this comment before entering specific code.
         this.couleur = value;
     }
@@ -31,8 +36,13 @@ public class Joueur {
 	}
 	
 	public Joueur(){
-		this.nom=null;
-		this.couleur=null;
+		this.nom="default";
+		this.couleur=Couleur.invisible;
+	}
+	
+	public Joueur(Joueur j){
+		this.nom=j.nom;
+		this.couleur=j.couleur;
 	}
 	
 	public String toString (){

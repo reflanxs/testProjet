@@ -1,51 +1,9 @@
-import java.util.Scanner;
-
-
-
-
 public class Affichage {
-    private Scanner scj1;
-	private Scanner scj2;
-	private Scanner sc;
+	public Affichage (){
+		
+	}
 	
-
-
-    public void demanderNom(Joueur joueur1, Joueur joueur2) {
-    	
-    	System.out.println("Veuillez saisir le nom du joueur 1 :");
-		scj1 = new Scanner(System.in);
-		 joueur1.setNom(scj1.nextLine());
-		
-		System.out.println("Veuillez saisir le nom du joueur 2 :");
-		scj2 = new Scanner(System.in);
-		joueur2.setNom(scj2.nextLine());
-		
-		System.out.println("Le joueur 1 s'appelle "+joueur1.getNom()+" et le joueur 2 s'appelle "+joueur2.getNom()+".");
-    	
-    }
-
- 
-    public Couleur demanderCouleur() {
-    	System.out.println("Veuillez saisir la couleur des pièces du joueur 1 (Attention il faut confirmer à 3 reprises:");
-    	sc = new Scanner(System.in);
-    	String str = sc.nextLine();	
-    	
-    	if(str.equals("noir") || str.equals("blanc")){
-    		if (str.equals("noir")){
-    			System.out.println("Le joueur 1 possède les pièces noires et le joueur 2 les pièces blanches");
-    			return Couleur.noir;}
-    		else{
-    			System.out.println("Le joueur 1 possède les pièces blanches et le joueur 2 les pièces noires");
-    			return Couleur.blanc;}
-    	}
-    	
-    	else
-    		return null;
-    }
-
-
-    public String jeu(Echequier unEchequier, Joueur joueurActuel) {
-    	int indexTab = 1;
+    public String jeu(Echequier unEchequier) {
     	String s="\n";
     	for (int a=0; a<10; a++){
     		s=s+"********";
@@ -79,15 +37,15 @@ public class Affichage {
     			}
     		
     			else if (d==0){
-    				s=s+"*   "+b+"   ";  
+    				s=s+"*   "+(9-b)+"   ";  
     			}
     			
     			else if (d==9){
-    				s=s+"*   "+b+"   ";  
+    				s=s+"*   "+(9-b)+"   ";  
     			}
     			
     			else{
-    				s=s+"*  "+unEchequier.tabCase[unEchequier.recupIndex(b-1, d-1)/*(8*(b-1))+(d-1)*/].piece.toString()+"  ";
+    				s=s+"*  "+unEchequier.tabCase[unEchequier.recupIndex(b-1, d-1)].piece.toString()+"  ";
     				
     			}
     			
@@ -124,25 +82,40 @@ public class Affichage {
     		return "G";
     	if(Colonne==8)
     		return "H";    	
-    	return null;
-		
+    	return null;	
 	}
-
-
-	public Affichage (){}
-    
 	
-	
-	
+	public void checkPartie(Partie p){
+		System.out.println(p.getJoueur1()+"/"+p.getJoueur2());
+		check(p.getEchequier());
+	}
 	
     public void check(Echequier tab ){
     	for(int i=0;i<64;i++){
-    		System.out.println("Case numero "+i+"/ rangée: "+tab.tabCase[i].getRangee()+"/colonne: "+tab.tabCase[i].getColonne()+" / "+ tab.tabCase[i].piece.toString());
+    		System.out.println("Case numero "+i+"/rangée: "+tab.tabCase[i].getRangee()+"/colonne: "+tab.tabCase[i].getColonne()+"/"+ tab.tabCase[i].piece.toString()+"/"+tab.tabCase[i].piece.nom+"/"+tab.tabCase[i].piece.couleur+"/"+tab.tabCase[i].piece.paire);
     	}
     }
     
     public void historiqueCoup(String move){
     	System.out.println(move);
     }
+
+	public void quitterJeu() {
+		System.out.println("Réponse non reconue.");
+		System.exit(0);
+		
+	}
+
+	public void perdant(Joueur joueurActuel) {
+		System.out.println(joueurActuel.getNom()+" a abandonné, la partie est terminé.");
+		System.exit(0);
+		
+	}
+
+	public String winner(Joueur gagnant) {
+		return "Félicitation "+gagnant.getNom()+", vous avez gagné.";
+		
+		
+	}
 
 }
