@@ -1,6 +1,12 @@
+import java.io.Serializable;
 
-public class Case {
-    private int rangee;
+public class Case implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private int rangee;
 
     private int colonne;
 
@@ -29,7 +35,7 @@ public class Case {
     public Case(int r, int c){
     	this.rangee=r;
     	this.colonne=c;
-    	this.piece= new Vide(1,Couleur.invisible,"vide");
+    	this.piece= new Vide();
     }
     
     public Case(int r, int c, Piece p){
@@ -40,6 +46,10 @@ public class Case {
     
     public Case(Piece p){
     	this.piece=p;
+    }
+    
+    public String toString (){
+    	return "rangée: "+this.rangee+" / colonne: "+this.colonne;
     }
 
 }

@@ -2,74 +2,55 @@ import java.io.IOException;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
-		
+		Partie partieInitMain= new Partie();
 		Joueur j1 = new Joueur();
 		Joueur j2 = new Joueur();
 		Echequier echequier = new Echequier();
 		Affichage a = new Affichage();
-		
-		a.demanderNom(j1, j2);
-		
-		Couleur saveCouleur=a.demanderCouleur();
-		
-		while (saveCouleur==null){
-			System.out.println("Erreur de saisie; tapez noir ou blanc");
-			saveCouleur=a.demanderCouleur();;
-		}
-
-		if (saveCouleur.equals(Couleur.noir)){
-			j1.setCouleur(Couleur.noir);
-			j2.setCouleur(Couleur.blanc);
-		}
-		else{
-			j1.setCouleur(Couleur.blanc);
-			j2.setCouleur(Couleur.noir);
-		}
-		
 		Arbitre arbitre = new Arbitre();
+		DialogueHommeMachine dhm= new DialogueHommeMachine();
+		String infoChargement=dhm.demanderChargement();
 		
-		Partie p= new Partie(echequier,j1,j2,arbitre);//ne plus utiliser echequier mais p.echequier
-		p.initialiser();
-		
-		System.out.println(j1);
-		System.out.println(j2);
-		System.out.println(arbitre);
-		
-		System.out.println(a.jeu(p.getEchequier(),j1));
-		
-		//a.check(p.getEchequier());
-		
-		
-		//p.sauvegarder();
-		
-		/*int cpt = 1;
-		int controlBoucle = 0;
-		while ( controlBoucle<5){//arbitre.verifierEtMat(null, null) == false || arbitre.verifierEtMat(null, null) == false ||
-			//a.check(echequier);
-
-			if(cpt==1){
-				p.setTour();
-				System.out.println("Tour "+p.getTour()+"\nC'est au tour de "+j1.getNom());
-				System.out.println(a.jeu(p.getEchequier(),j1));
-				a.historiqueCoup(p.getHistorique());
-				p.jouer(j1);
-				cpt=2;
-				//a.check(echequier);
+		if(infoChargement.equals("oui")){
+			partieInitMain.charger();
+			
+		}
+		else if(infoChargement.equals("non")){
+			dhm.demanderNom(j1, j2);
+			Couleur infoCouleur= dhm.demanderCouleur();
+			while (infoCouleur==null){
+				System.out.println("Erreur de saisie; tapez noir ou blanc");
+				infoCouleur= dhm.demanderCouleur();
+			}
+			if (infoCouleur.equals(Couleur.noir)){
+				j1.setCouleur(Couleur.noir);
+				j2.setCouleur(Couleur.blanc);
 			}
 			else{
-				p.setTour();
-				System.out.println("Tour "+p.getTour()+"\nC'est au tour de "+j2.getNom());
-				System.out.println(a.jeu(p.getEchequier(),j2));
-				a.historiqueCoup(p.getHistorique());
-				p.jouer(j2);
-				cpt=1;
-				//a.check(echequier);
-
+				j1.setCouleur(Couleur.blanc);
+				j2.setCouleur(Couleur.noir);
 			}
-			/*controlBoucle++;
-			System.out.println("Boucle numero: "+controlBoucle);*/
-		//}
-	
+			partieInitMain= new Partie(echequier,j1,j2,arbitre);
+			partieInitMain.initialiser();
+		}
+		else{
+			a.quitterJeu();
+		}
+		dhm= new DialogueHommeMachine(partieInitMain);
+		
+		Piece roiJ1= dhm.getP().getArbitre().existancePiece(dhm.getP().getEchequier(),"roi", dhm.getP().getJoueur1());
+		Piece roiJ2= dhm.getP().getArbitre().existancePiece(dhm.getP().getEchequier(),"roi", dhm.getP().getJoueur2());
+		while ( arbitre.verifierEtMat(dhm.getP().getJoueur2(),dhm.getP().getJoueur1(),roiJ1,dhm.getP().getEchequier())== false 
+				&& arbitre.verifierEtMat(dhm.getP().getJoueur1(),dhm.getP().getJoueur2(),roiJ2,dhm.getP().getEchequier())== false){ 
+			
+				if(dhm.getP().getTour()%2==0){
+					dhm.protocoleJoueur1();
+				}
+				else{
+					dhm.protocoleJoueur2();
+				}
+				dhm.getP().setTour();
+				dhm.getP().sauvegarder();
+			}
 	}
-
 }

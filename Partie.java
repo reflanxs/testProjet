@@ -1,9 +1,22 @@
 import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
+public class Partie implements Serializable {
+    
 
-public class Partie {
-    private Echequier unEchequier ;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private Echequier unEchequier ;
 
     private Arbitre arbitre;
 
@@ -13,40 +26,43 @@ public class Partie {
     private String historique;
     private int tour;
 
-	private Scanner sc;
-
-	private Scanner scColonne;
-
-	private Scanner scRangee;
-
-	private Scanner scPaire;
-
-	private Scanner scPiece;
-    
+    private Affichage a;
     
     public Partie(){
     	this.setEchequier(new Echequier());
-    	this.arbitre=null;
-    	this.setJoueur1(null);
-    	this.setJoueur2(null);
-    	this.setHistorique(null);
+    	this.setArbitre(new Arbitre());
+    	this.setJoueur1(new Joueur());
+    	this.setJoueur2(new Joueur());
+    	this.setHistorique("");
     	this.tour=0;
+    	
 
     }
     
-    private void setEchequier(Echequier echequier) {
-    	this.unEchequier=echequier;	
-	}
+    
 
 	public Partie(Echequier e,Joueur j1,Joueur j2,Arbitre a){
-    	this.arbitre=a;
+    	this.setArbitre(a);
     	this.setJoueur1(j1);
     	this.setJoueur2(j2);
     	this.setEchequier(e);
     	this.setHistorique("Liste de coup effectuer :");
-    	this.tour=0;
+    	this.tour=1;
+    	this.a= new Affichage();
     	
     }
+	
+	public Partie(Partie p){
+    	this.setArbitre(p.arbitre);
+    	this.setJoueur1(p.joueur1);
+    	this.setJoueur2(p.joueur2);
+    	this.setEchequier(p.unEchequier);
+    	this.setHistorique(p.historique);
+    	this.tour=p.tour;
+    	this.a= new Affichage();
+    	
+    }
+	
     public void initialiser() {
     	int c=1;
     	int r=1;
@@ -85,139 +101,34 @@ public class Partie {
     	this.unEchequier.tabCase[58].piece=new Fou(1,Couleur.blanc,"fou");
     	this.unEchequier.tabCase[61].piece=new Fou(2,Couleur.blanc,"fou");
     	
-    	this.unEchequier.tabCase[3].piece=new Roi(1,Couleur.noir,"roi");
-    	this.unEchequier.tabCase[59].piece=new Roi(1,Couleur.blanc,"roi");
+    	this.unEchequier.tabCase[4].piece=new Roi(1,Couleur.noir,"roi");
+    	this.unEchequier.tabCase[60].piece=new Roi(1,Couleur.blanc,"roi");
     	
-    	this.unEchequier.tabCase[4].piece=new Dame(1,Couleur.noir,"dame");
-    	this.unEchequier.tabCase[60].piece=new Dame(1,Couleur.blanc,"dame");
+    	this.unEchequier.tabCase[3].piece=new Dame(1,Couleur.noir,"dame");
+    	this.unEchequier.tabCase[59].piece=new Dame(1,Couleur.blanc,"dame");
     	
     }
 
-    public void jouer(Joueur joueurActuel) {
+    public void jouer(Joueur joueurActuel,Piece pieceV2,Case caseDepart,Case caseArriver) {
+    	
+    	Piece pieceMouvement= pieceV2;
     	
     	
-    	scPiece = new Scanner(System.in);
-    	scPaire = new Scanner(System.in);
-    	scRangee = new Scanner(System.in);
-    	scColonne = new Scanner(System.in);
+    	if (this.arbitre.verifierDisparitionRoi(this.getEchequier(),caseArriver)== true){
     		
-    		System.out.println("Quelle type de pièce souhaiter vous déplacer ?");
-    		String strPiece = scPiece.nextLine();
+			this.arbitre.verifierEtMatFast(joueurActuel);
+			
+		
+	}
+
+    		this.setEchequier(pieceMouvement.move(this.getEchequier(),caseDepart,caseArriver));
     		
-    		while (existancePiece(strPiece,joueurActuel)==null){
-    			System.out.println("Erreur: vous ne posseder plus ce type de piece sur l'echequier.");
-    			
-    			System.out.println("Quelle type pièce souhaiter vous déplacer ?");
-    			strPiece = scPiece.nextLine();
-    		}
     		
-    		System.out.println("Quelle doublon de cette piece souhaiter vous déplacer ?(si il n'y qu'un exemplaire de cette pièce (exemple:le roi) ecrivez quand même: 1)");
-    		int strPaire = scPaire.nextInt();
     		
-    		while (existancePaire(strPaire,joueurActuel,strPiece)==-1){
-    			System.out.println("Erreur: vous ne posseder plus ce doublon de cette piece sur l'echequier.");
-    			
-        		System.out.println("Quelle doublon de cette piece souhaiter vous déplacer ?(si il n'y qu'un exemplaire de cette pièce (exemple:le roi) ecrivez quand même: 1)");
-    			strPaire = scPaire.nextInt();
-    		}
-    		
-    		System.out.println("Dans quelle colonne souhaiter vous la déplacer ?(écrire une lettre en MAJUSCULE entre A à H)");
-    		String strColonne = scColonne.nextLine();
-    		
-    		while (indiceValide(convertionLettre(strColonne))==false){
-    			System.out.println("Erreur d'indice.");
-    			
-    			System.out.println("Dans quelle colonne souhaiter vous la déplacer ?(écrire une lettre en MAJUSCULE entre A à H)");
-        		strColonne = scColonne.nextLine();
-    		}
-    		
-    		System.out.println("Dans quelle rangée souhaiter vous la déplacer ?(écrire un chiffre entre 1 à 8)");
-    		int strRangee = scRangee.nextInt();
-    		
-    		while (indiceValide(strRangee)==false){
-    			System.out.println("Erreur d'indice.");
-    			
-        		
-        		System.out.println("Dans quelle rangée souhaiter vous la déplacer ?(écrire un chiffre entre 1 à 8)");
-        		strRangee = scRangee.nextInt();
-    		}
-    		
-    		while(verifCouleurPiece(strRangee,convertionLettre(strColonne),joueurActuel)==true){
-    			System.out.println("Impossible de déplacer la pièce ici car vous avez déjà une pièce de même couleur à cet emplacment, veuillez réessayer.");
-    			
-    			System.out.println("Dans quelle colonne souhaiter vous la déplacer ?(écrire une lettre en MAJUSCULE entre A à H)");
-        		 strColonne = scColonne.nextLine();
-        		
-        		while (indiceValide(convertionLettre(strColonne))==false){
-        			System.out.println("Erreur d'indice.");
-        			
-        			System.out.println("Dans quelle colonne souhaiter vous la déplacer ?(écrire une lettre en MAJUSCULE entre A à H)");
-            		strColonne = scColonne.nextLine();
-        		}
-        		
-        		System.out.println("Dans quelle rangée souhaiter vous la déplacer ?(écrire un chiffre entre 1 à 8)");
-        		 strRangee = scRangee.nextInt();
-        		
-        		while (indiceValide(strRangee)==false){
-        			System.out.println("Erreur d'indice.");
-        			
-            		
-            		System.out.println("Dans quelle rangée souhaiter vous la déplacer ?(écrire un chiffre entre 1 à 8)");
-            		strRangee = scRangee.nextInt();
-        		}
-    		}
-    		//System.out.println("deplacement en  cours du "+strPiece+" de numero "+strPaire+" de la case "+ rangeeDepart(strPiece,strPaire,joueurActuel)+"|"+ colonneDepart(strPiece,strPaire,joueurActuel) +" vers la case "+ strRangee+"|"+ convertionLettre(strColonne));
-    		
-    	//savePiece(strPiece, strPaire, colonneDepart(strPiece,strPaire,joueurActuel.couleur), rangeeDepart(strPiece,strPaire,joueurActuel.couleur), joueurActuel.couleur).move(colonneDepart(strPiece,strPaire,joueurActuel.couleur), rangeeDepart(strPiece,strPaire,joueurActuel.couleur), strColonne, strRangee);
-    	//faire dans piece la vrai fonction déplacement
-    		
-    		Piece pieceMouvement=existancePiece(strPiece,joueurActuel);
-    		int rDepart=rangeeDepart(strPiece,strPaire,joueurActuel);
-    		int cDepart=colonneDepart(strPiece,strPaire,joueurActuel);
-    		int rArrivee=strRangee;
-    		int cArrivee=convertionLettre(strColonne);
-    		
-    		this.setEchequier(pieceMouvement.move(this.getEchequier(), cDepart, rDepart, cArrivee, rArrivee));
-    		
-    		this.historique=this.historique+"\nTour "+this.getTour()+": "+joueurActuel.getNom()+" à déplacer "+pieceMouvement.nom+" "+pieceMouvement.paire+" de la case "+rDepart+" "+convertionChiffre(cDepart)+" vers la case "+rArrivee+" "+convertionChiffre(cArrivee);
+    		this.historique=this.historique+"\nTour "+this.getTour()+": "+joueurActuel.getNom()+" à déplacer "+pieceMouvement.nom+" "+pieceMouvement.paire+" de la case "+caseDepart.getRangee()+" "+convertionChiffre(caseDepart.getColonne())+" vers la case "+caseArriver.getRangee()+" "+convertionChiffre(caseArriver.getColonne());
     	
     	}
-    	
-    }
-      
-    public Piece existancePiece(String nomPiece,Joueur joueurActuel){
-    	for(int i=0;i<64;i++){
-    		if(this.unEchequier.tabCase[i].piece.nom.equals(nomPiece) 
-    				&& this.unEchequier.tabCase[i].piece.couleur.equals(joueurActuel.couleur)){
-    			
-    			return this.unEchequier.tabCase[i].piece;
-    		}	
-    	}
-    	
-    	return null;
-    }
-    
-    public Piece existancePaire(Piece pieceVerifier, int paire  ){
-    	
-    	for(int i=0;i<64;i++){
-    		if(this.unEchequier.tabCase[i].piece.paire==paire 
-    				&& this.unEchequier.tabCase[i].piece.nom.equals(pieceVerifier.nom) 
-    					&& this.unEchequier.tabCase[i].piece.couleur.equals(pieceVerifier.couleur)){
-    			
-    			return this.unEchequier.tabCase[i].piece;
-    			
-    		}
-    	}	
-    	return null;
-    }
-    
-    
-    public boolean indiceValide(int indice){
-    	if(indice>=1 && indice<=8)
-    		return true;
-    	return false;
-    	
-    }
+  
     
     public int convertionLettre(String Lettre){
     	if(Lettre.equals("A"))
@@ -262,131 +173,136 @@ public class Partie {
     }
     
     
-    
-    /*public Piece savePiece(String nomP, int paireP, int colonneP, int rangeeP, Couleur joueurETpiece){
-    	for(int i=0;i<10;i++){
-    		for(int j=0;j<10;j++){
-    			if (this.echequier[i][j].c!=null){
-    				if (this.echequier[i][j].c.getColonne() == colonneP && this.echequier[i][j].c.getRangee() == rangeeP){
-    					if (this.echequier[i][j].c.piece.nom == nomP && this.echequier[i][j].c.piece.couleur == joueurETpiece )
-    						return this.echequier[i][j].c.piece;
-    				}
-    			}
-    		}
-    	}
-    	return null;
-    }*/
-    
-   /* public int colonneDepart(String nomPiece, int paire, Joueur joueurActuel){
-    	//System.out.println("je rentre dans la fonction existancePaire");
-    	for(int i=0;i<10;i++){
-    		//System.out.println("quand i = "+i);
-    		for(int j=0;j<10;j++){
-    			//System.out.println("quand j = "+j);
-    			if (this.getEchequier()[i][j].c!=null){
-    				//System.out.println("La case n'est pas nul.");
-    				if(this.getEchequier()[i][j].c.piece.nom.equals(nomPiece) && this.getEchequier()[i][j].c.piece.couleur.equals(joueurActuel.getCouleur()) ){
-    					//System.out.println("J'ai trouvé une piece possible");
-    					if(this.getEchequier()[i][j].c.piece.paire==paire){
-    						//System.out.println("J'ai trouvé la bonne paire");
-    						return this.getEchequier()[i][j].c.getColonne();
-    					}
-    				}	
-    			}
-    		}
-    	
+   public int colonneDepart(Piece piece){
+	   for(int i=0;i<64;i++){
+		   if(this.unEchequier.tabCase[i].piece.couleur.equals(piece.couleur) 
+				   && this.unEchequier.tabCase[i].piece.nom.equals(piece.nom) 
+				   		&& this.unEchequier.tabCase[i].piece.paire==piece.paire){
+			   return this.unEchequier.tabCase[i].getColonne();
+		   }
+	   }
     	return -1;
-    }*/
+    }
+	   
     
-    /*public int rangeeDepart(String nomPiece, int paire, Joueur joueurActuel){
-    	//System.out.println("je rentre dans la fonction existancePaire");
-    	for(int i=0;i<10;i++){
-    		//System.out.println("quand i = "+i);
-    		for(int j=0;j<10;j++){
-    			//System.out.println("quand j = "+j);
-    			if (this.getEchequier()[i][j].c!=null){
-    				//System.out.println("La case n'est pas nul.");
-    				if(this.getEchequier()[i][j].c.piece.nom.equals(nomPiece) && this.getEchequier()[i][j].c.piece.couleur.equals(joueurActuel.getCouleur()) ){
-    					//System.out.println("J'ai trouvé une piece possible");
-    					if(this.getEchequier()[i][j].c.piece.paire==paire){
-    						//System.out.println("J'ai trouvé la bonne paire");
-    						return this.getEchequier()[i][j].c.getRangee();
-    					}
-    				}	
-    			}
-    		}
-    	}
+    public int rangeeDepart(Piece piece){
+    	for(int i=0;i<64;i++){
+		   if(this.unEchequier.tabCase[i].piece.couleur.equals(piece.couleur) 
+				   && this.unEchequier.tabCase[i].piece.nom.equals(piece.nom) 
+				   		&& this.unEchequier.tabCase[i].piece.paire==piece.paire){
+			   return this.unEchequier.tabCase[i].getRangee();
+		   }
+	   }
     	return -1;
-    }*/
+    }
     
-    /*public boolean verifCouleurPiece(int r,int c, Joueur joueur){
-    	//System.out.println("je rentre dans la fonction verifCouleurPiece");
-    	for(int i=0;i<10;i++){
-    		//System.out.println("quand i = "+i);
-    		for(int j=0;j<10;j++){
-    			//System.out.println("quand j = "+j);
-    			if (this.getEchequier()[i][j].c!=null){
-    				if (this.echequier[i][j].c.getColonne()==c && this.echequier[i][j].c.getRangee()==r){
-    					if(this.echequier[i][j].c.piece.couleur.equals(joueur.getCouleur())){
-    						System.out.println("meme couleur");
-    						return true;
-    					}
-    				}
-    			}
-    		}
-    	}
-    	System.out.println("aucune erreur trouvé");
-    	return false;
-    }*/
+    
+    public void sauvegarder() throws IOException {
+    	 final String chemin1 = "C:\\Users\\car\\Desktop\\projetJavaFinal\\projetEchequierAffiner\\src\\SauvegardeDernierePartieEchequier.ser";
+         final File fichierEchequier =new File(chemin1); 
+ 
+         final String chemin3 = "C:\\Users\\car\\Desktop\\projetJavaFinal\\projetEchequierAffiner\\src\\SauvegardeDernierePartieListeCoup.txt";
+         final File fichierCoup =new File(chemin3); 
+         
+         final String chemin4 = "C:\\Users\\car\\Desktop\\projetJavaFinal\\projetEchequierAffiner\\src\\SauvegardeDernierePartieTour.txt";
+         final File fichierTour =new File(chemin4); 
+        
+         ObjectOutputStream saveObj = null;
+             FileWriter writer3 = null;
+             FileWriter writer4 = null;
+			try {
+				saveObj= new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fichierEchequier)));
+				saveObj.writeObject(new Partie(this.unEchequier,this.joueur1,this.joueur2, new Arbitre()));
+				writer3 = new FileWriter(fichierCoup);
+				writer4 = new FileWriter(fichierTour);
+				writer3.write(this.historique);
+				writer4.write(this.tour+"/"+"num tour");
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}finally{
+				System.out.println("Sauvegarde terminé.");
+				
+				 writer3.close();
+				 writer4.close();
+				 saveObj.close();
+			}
+ 
+    }
+    
+    public void charger(){
+    	final String chemin1 = "C:\\Users\\car\\Desktop\\projetJavaFinal\\projetEchequierAffiner\\src\\SauvegardeDernierePartieEchequier.ser";
+        final File fichierEchequier =new File(chemin1); 
+        
+        final String chemin3 = "C:\\Users\\car\\Desktop\\projetJavaFinal\\projetEchequierAffiner\\src\\SauvegardeDernierePartieListeCoup.txt";
+        final File fichierCoup =new File(chemin3); 
+        
+        final String chemin4 = "C:\\Users\\car\\Desktop\\projetJavaFinal\\projetEchequierAffiner\\src\\SauvegardeDernierePartieTour.txt";
+        final File fichierTour =new File(chemin4); 
+        
+        ObjectInputStream loadObj= null;
+        Partie chargement = null;
+        try{
+        	try {
+				loadObj= new ObjectInputStream(new BufferedInputStream(new FileInputStream(fichierEchequier)));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        	 chargement= (Partie)loadObj.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}finally{
+        	try {
+				loadObj.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
+        this.unEchequier= new Echequier(chargement.unEchequier);
+        this.joueur1= new Joueur(chargement.joueur1);
+        this.joueur2= new Joueur(chargement.joueur2);
 
-    /*public boolean demanderSpécial(){
-    	System.out.println("Voulez effectuer un mouvement spécial ?(écrire oui ou non)");
-    	sc = new Scanner(System.in);
-    	String str = sc.nextLine();
-    	if (str.equals("oui"))
-    		return true;
-		return false;
-    }*/
-    
-    public void sauvegarder() throws IOException{
-    	 final String chemin = "C:/tmp.txt";
-         final File fichier =new File(chemin); 
-         try {
-             // Creation du fichier
-             fichier .createNewFile();
-             // creation d'un writer (un écrivain)
-             final FileWriter writer = new FileWriter(fichier);
-             try {
-                 writer.write("ceci est un texte\n");
-                 writer.write("encore et encore");
-             } finally {
-                 // quoiqu'il arrive, on ferme le fichier
-                 writer.close();
-             }
-         } catch (Exception e) {
-             System.out.println("Impossible de creer le fichier");
-         }
+        
+        
+
+        try (BufferedReader br= new BufferedReader(new FileReader(fichierCoup))){
+	
+	
+        	String ligne;
+	
+        	while((ligne= br.readLine()) != null){
+        			this.historique= this.historique+"\n"+ligne;
+        	}
+        } catch (IOException e) {
+	
+		e.printStackTrace();
+        }
+
+        try (BufferedReader br= new BufferedReader(new FileReader(fichierTour))){
+	
+	
+        	String ligne;
+	
+        	while((ligne= br.readLine()) != null){
+        		String[] parties= ligne.split("/");
+        		int t= Integer.parseInt(parties[0]);
+        		this.tour= t;
+        	}
+        } catch (IOException e) {
+	
+        	e.printStackTrace();
+        }
+        
+        
+        
+        
+        
     }
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     public Joueur getJoueur1() {
-		return joueur2;
+		return joueur1;
 	}
 
 	public void setJoueur1(Joueur joueur1) {
@@ -420,7 +336,34 @@ public class Partie {
 	public Echequier getEchequier(){
 		return this.unEchequier;
 	}
+	
+	public void setEchequier(Echequier echequier) {
+    	this.unEchequier= new Echequier(echequier);	
+	}
 
+
+
+	public Arbitre getArbitre() {
+		return arbitre;
+	}
+
+
+
+	public void setArbitre(Arbitre arbitre) {
+		this.arbitre = arbitre;
+	}
+
+
+
+	public Affichage getA() {
+		return a;
+	}
+
+
+
+	public void setA(Affichage a) {
+		this.a = a;
+	}
 
     
 }
